@@ -72,9 +72,19 @@ export class ProductsService {
 
   private nextId = 6;
 
-  // 전체 상품 조회
-  findAll(): Product[] {
-    return this.products;
+  // 전체 상품 조회 (카테고리, 검색어 필터 지원)
+  findAll(category?: string, search?: string): Product[] {
+    let result = this.products;
+    if (category) {
+      result = result.filter((p) => p.category === category);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
+      );
+    }
+    return result;
   }
 
   // 단일 상품 조회

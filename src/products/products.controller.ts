@@ -1,8 +1,8 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Body, Param,
+  Body, Param, Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -14,8 +14,13 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: '전체 상품 목록 조회' })
-  findAll() {
-    return this.productsService.findAll();
+  @ApiQuery({ name: 'category', required: false, description: '카테고리 필터' })
+  @ApiQuery({ name: 'search', required: false, description: '상품명 검색' })
+  findAll(
+    @Query('category') category?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.productsService.findAll(category, search);
   }
 
   @Get(':id')
