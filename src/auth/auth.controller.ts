@@ -10,7 +10,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @ApiOperation({ summary: '로그인' })
+  @ApiOperation({ summary: '이메일/비밀번호 로그인' })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto.email, dto.password);
   }
