@@ -37,4 +37,11 @@ export class CartController {
   removeItem(@Param('id') id: string) {
     return this.cartService.removeItem(id);
   }
+
+  @Delete()
+  @ApiOperation({ summary: '장바구니 비우기' })
+  clearCart() {
+    this.cartService.clear();
+    return { message: '장바구니가 비워졌습니다' };
+  }
 }
