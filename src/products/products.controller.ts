@@ -13,20 +13,26 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  @ApiOperation({ summary: '전체 상품 목록 조회' })
+  @ApiOperation({ summary: '전체 상품 목록 조회 (페이지네이션, 정렬 지원)' })
   @ApiQuery({ name: 'category', required: false, description: '카테고리 필터' })
   @ApiQuery({ name: 'search', required: false, description: '상품명 검색' })
+  @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본: 1)' })
+  @ApiQuery({ name: 'limit', required: false, description: '페이지 당 개수 (기본: 20)' })
+  @ApiQuery({ name: 'sort', required: false, description: '정렬 기준 (price_asc, price_desc, newest)' })
   findAll(
     @Query('category') category?: string,
     @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
-    return this.productsService.findAll(category, search);
+    return this.productsService.findAll(category, search, page, limit, sort);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '상품 상세 조회' })
+  @ApiOperation({ summary: '상품 상세 조회 (관련 상품 포함)' })
   findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+    return this.productsService.findOneWithRelated(id);
   }
 
   @Post()

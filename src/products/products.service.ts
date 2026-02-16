@@ -72,19 +72,51 @@ export class ProductsService {
 
   private nextId = 6;
 
-  // 전체 상품 조회 (카테고리, 검색어 필터 지원)
-  findAll(category?: string, search?: string): Product[] {
+  // 전체 상품 조회 (카테고리, 검색어, 페이지네이션, 정렬 지원)
+  findAll(
+    category?: string,
+    search?: string,
+    page?: string,
+    limit?: string,
+    sort?: string,
+  ) {
     let result = this.products;
+
+    // 카테고리 필터
     if (category) {
       result = result.filter((p) => p.category === category);
     }
+    // 검색어 필터
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
         (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
       );
     }
-    return result;
+    // 정렬
+    if (sort === 'price_asc') {
+      result = [...result].sort((a, b) => a.price - b.price);
+    } else if (sort === 'price_desc') {
+      result = [...result].sort((a, b) => b.price - a.price);
+    } else if (sort === 'newest') {
+      result = [...result].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
+
+    // 페이지네이션
+    const pageNum = Math.max(1, parseInt(page || '1', 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit || '20', 10) || 20));
+    const total = result.length;
+    const items = result.slice((pageNum - 1) * limitNum, pageNum * limitNum);
+
+    return {
+      items,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
   }
 
   // 단일 상품 조회
@@ -92,6 +124,15 @@ export class ProductsService {
     const product = this.products.find((p) => p.id === id);
     if (!product) throw new NotFoundException('상품을 찾을 수 없습니다');
     return product;
+  }
+
+  // 단일 상품 + 관련 상품 조회
+  findOneWithRelated(id: string) {
+    const product = this.findOne(id);
+    const related = this.products
+      .filter((p) => p.id !== id && p.category === product.category)
+      .slice(0, 4);
+    return { ...product, relatedProducts: related };
   }
 
   // 상품 생성
