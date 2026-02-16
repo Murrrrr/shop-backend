@@ -15,7 +15,7 @@ export class OrdersController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '주문 상세 조회' })
+  @ApiOperation({ summary: '주문 상세 조회 (배송 상태 포함)' })
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(id);
   }
