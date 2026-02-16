@@ -13,7 +13,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  @ApiOperation({ summary: '전체 상품 목록 조회 (필터, 페이지네이션, 정렬)' })
+  @ApiOperation({ summary: '전체 상품 목록 조회 변경점 (필터, 페이지네이션, 정렬)' })
   @ApiQuery({ name: 'category', required: false, description: '카테고리 필터' })
   @ApiQuery({ name: 'search', required: false, description: '상품명 검색' })
   @ApiQuery({ name: 'minPrice', required: false, description: '최소 가격 필터' })
