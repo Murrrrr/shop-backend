@@ -11,6 +11,9 @@ export interface Product {
   category: string;
   imageUrl: string;
   stock: number;
+  averageRating: number;
+  reviewCount: number;
+  tags: string[];
   createdAt: Date;
 }
 
@@ -26,6 +29,9 @@ export class ProductsService {
       category: '전자기기',
       imageUrl: 'https://picsum.photos/seed/earphone/400/400',
       stock: 150,
+      averageRating: 4.5,
+      reviewCount: 128,
+      tags: ['블루투스', '무선', '노이즈캔슬링'],
       createdAt: new Date(),
     },
     {
@@ -36,6 +42,9 @@ export class ProductsService {
       category: '전자기기',
       imageUrl: 'https://picsum.photos/seed/watch/400/400',
       stock: 50,
+      averageRating: 4.8,
+      reviewCount: 67,
+      tags: ['스마트워치', '건강', '프리미엄'],
       createdAt: new Date(),
     },
     {
@@ -46,6 +55,9 @@ export class ProductsService {
       category: '의류',
       imageUrl: 'https://picsum.photos/seed/tshirt/400/400',
       stock: 300,
+      averageRating: 4.2,
+      reviewCount: 245,
+      tags: ['오가닉', '기본', '면'],
       createdAt: new Date(),
     },
     {
@@ -56,6 +68,9 @@ export class ProductsService {
       category: '식품',
       imageUrl: 'https://picsum.photos/seed/coffee/400/400',
       stock: 200,
+      averageRating: 4.7,
+      reviewCount: 312,
+      tags: ['커피', '원두', '에티오피아'],
       createdAt: new Date(),
     },
     {
@@ -66,16 +81,22 @@ export class ProductsService {
       category: '패션잡화',
       imageUrl: 'https://picsum.photos/seed/bag/400/400',
       stock: 80,
+      averageRating: 4.6,
+      reviewCount: 89,
+      tags: ['가죽', '크로스백', '이탈리아'],
       createdAt: new Date(),
     },
   ];
 
   private nextId = 6;
 
-  // 전체 상품 조회 (카테고리, 검색어, 페이지네이션, 정렬 지원)
+  // 전체 상품 조회 (필터, 페이지네이션, 정렬 지원)
   findAll(
     category?: string,
     search?: string,
+    minPrice?: string,
+    maxPrice?: string,
+    inStock?: string,
     page?: string,
     limit?: string,
     sort?: string,
@@ -90,8 +111,24 @@ export class ProductsService {
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.tags.some((t) => t.toLowerCase().includes(q)),
       );
+    }
+    // 가격 범위 필터
+    if (minPrice) {
+      const min = parseFloat(minPrice);
+      if (!isNaN(min)) result = result.filter((p) => p.price >= min);
+    }
+    if (maxPrice) {
+      const max = parseFloat(maxPrice);
+      if (!isNaN(max)) result = result.filter((p) => p.price <= max);
+    }
+    // 재고 필터
+    if (inStock === 'true') {
+      result = result.filter((p) => p.stock > 0);
     }
     // 정렬
     if (sort === 'price_asc') {
@@ -100,6 +137,8 @@ export class ProductsService {
       result = [...result].sort((a, b) => b.price - a.price);
     } else if (sort === 'newest') {
       result = [...result].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    } else if (sort === 'rating') {
+      result = [...result].sort((a, b) => b.averageRating - a.averageRating);
     }
 
     // 페이지네이션
@@ -108,6 +147,9 @@ export class ProductsService {
     const total = result.length;
     const items = result.slice((pageNum - 1) * limitNum, pageNum * limitNum);
 
+    // 카테고리 목록 (필터 UI용)
+    const categories = [...new Set(this.products.map((p) => p.category))];
+
     return {
       items,
       pagination: {
@@ -115,6 +157,13 @@ export class ProductsService {
         limit: limitNum,
         total,
         totalPages: Math.ceil(total / limitNum),
+      },
+      filters: {
+        categories,
+        priceRange: {
+          min: Math.min(...this.products.map((p) => p.price)),
+          max: Math.max(...this.products.map((p) => p.price)),
+        },
       },
     };
   }

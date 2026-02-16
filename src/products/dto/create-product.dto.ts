@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsArray, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 // 상품 생성 DTO
@@ -29,4 +29,10 @@ export class CreateProductDto {
   @IsNumber()
   @Min(0)
   stock: number;
+
+  @ApiProperty({ example: ['블루투스', '무선'], required: false })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
 }
