@@ -8,9 +8,13 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  discount: number;
+  discountedPrice: number;
   category: string;
   imageUrl: string;
   stock: number;
+  soldCount: number;
+  isNew: boolean;
   averageRating: number;
   reviewCount: number;
   tags: string[];
@@ -26,9 +30,13 @@ export class ProductsService {
       name: '무선 블루투스 이어폰',
       description: '고음질 블루투스 5.3 무선 이어폰, 노이즈 캔슬링 지원',
       price: 49900,
+      discount: 10,
+      discountedPrice: 44910,
       category: '전자기기',
       imageUrl: 'https://picsum.photos/seed/earphone/400/400',
       stock: 150,
+      soldCount: 1240,
+      isNew: false,
       averageRating: 4.5,
       reviewCount: 128,
       tags: ['블루투스', '무선', '노이즈캔슬링'],
@@ -39,9 +47,13 @@ export class ProductsService {
       name: '스마트 워치 프로',
       description: '심박수, 산소포화도 측정 가능한 프리미엄 스마트워치',
       price: 299000,
+      discount: 0,
+      discountedPrice: 299000,
       category: '전자기기',
       imageUrl: 'https://picsum.photos/seed/watch/400/400',
       stock: 50,
+      soldCount: 320,
+      isNew: true,
       averageRating: 4.8,
       reviewCount: 67,
       tags: ['스마트워치', '건강', '프리미엄'],
@@ -52,9 +64,13 @@ export class ProductsService {
       name: '오가닉 코튼 티셔츠',
       description: '100% 유기농 면으로 만든 편안한 기본 티셔츠',
       price: 29000,
+      discount: 20,
+      discountedPrice: 23200,
       category: '의류',
       imageUrl: 'https://picsum.photos/seed/tshirt/400/400',
       stock: 300,
+      soldCount: 5670,
+      isNew: false,
       averageRating: 4.2,
       reviewCount: 245,
       tags: ['오가닉', '기본', '면'],
@@ -65,9 +81,13 @@ export class ProductsService {
       name: '프리미엄 원두 커피',
       description: '에티오피아 예가체프 싱글 오리진 원두 500g',
       price: 18500,
+      discount: 5,
+      discountedPrice: 17575,
       category: '식품',
       imageUrl: 'https://picsum.photos/seed/coffee/400/400',
       stock: 200,
+      soldCount: 8920,
+      isNew: false,
       averageRating: 4.7,
       reviewCount: 312,
       tags: ['커피', '원두', '에티오피아'],
@@ -78,9 +98,13 @@ export class ProductsService {
       name: '가죽 크로스백',
       description: '이탈리안 천연 소가죽 미니 크로스백',
       price: 89000,
+      discount: 15,
+      discountedPrice: 75650,
       category: '패션잡화',
       imageUrl: 'https://picsum.photos/seed/bag/400/400',
       stock: 80,
+      soldCount: 450,
+      isNew: true,
       averageRating: 4.6,
       reviewCount: 89,
       tags: ['가죽', '크로스백', '이탈리아'],
@@ -139,6 +163,10 @@ export class ProductsService {
       result = [...result].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     } else if (sort === 'rating') {
       result = [...result].sort((a, b) => b.averageRating - a.averageRating);
+    } else if (sort === 'best_selling') {
+      result = [...result].sort((a, b) => b.soldCount - a.soldCount);
+    } else if (sort === 'discount') {
+      result = [...result].sort((a, b) => b.discount - a.discount);
     }
 
     // 페이지네이션
@@ -186,10 +214,16 @@ export class ProductsService {
 
   // 상품 생성
   create(dto: CreateProductDto): Product {
+    const discount = dto.discount || 0;
+    const discountedPrice = Math.round(dto.price * (1 - discount / 100));
     const product: Product = {
       id: String(this.nextId++),
       ...dto,
+      discount,
+      discountedPrice,
       imageUrl: dto.imageUrl || '',
+      soldCount: 0,
+      isNew: true,
       createdAt: new Date(),
     };
     this.products.push(product);

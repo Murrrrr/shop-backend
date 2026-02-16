@@ -21,7 +21,7 @@ export class ProductsController {
   @ApiQuery({ name: 'inStock', required: false, description: '재고 있는 상품만 (true/false)' })
   @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본: 1)' })
   @ApiQuery({ name: 'limit', required: false, description: '페이지 당 개수 (기본: 20)' })
-  @ApiQuery({ name: 'sort', required: false, description: '정렬 기준 (price_asc, price_desc, newest, rating)' })
+  @ApiQuery({ name: 'sort', required: false, description: '정렬 기준 (price_asc, price_desc, newest, rating, best_selling, discount)' })
   findAll(
     @Query('category') category?: string,
     @Query('search') search?: string,
