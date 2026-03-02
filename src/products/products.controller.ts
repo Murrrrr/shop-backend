@@ -30,6 +30,12 @@ export class ProductsController {
     @Query('limit') limit?: number,
   ) {}
 
+  @ApiOperation({ summary: '인기 상품 조회', description: '판매량 기준 인기 상품 TOP N을 조회합니다' })
+  @ApiQuery({ name: 'limit', type: 'number', required: false, description: '조회할 상품 수 (기본 10)', example: '10' })
+  @ApiOkResponse({ description: '인기 상품 목록', type: 'Product[]' })
+  @Get('popular')
+  findPopular(@Query('limit') limit?: number) {}
+
   @ApiOperation({ summary: '상품 상세 조회', description: '상품 ID로 단일 상품 정보와 리뷰를 조회합니다' })
   @ApiParam({ name: 'id', type: 'string', required: true, description: '상품 ID' })
   @ApiOkResponse({ description: '상품 상세 정보 (리뷰 포함)', type: 'ProductDetail' })
