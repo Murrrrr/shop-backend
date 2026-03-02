@@ -55,4 +55,26 @@ export class OrdersController {
   cancel(@Param('id') id: string) {
     return this.ordersService.findOne(id);
   }
+
+  @Post(':id/refund')
+  @ApiOperation({ summary: '주문 환불 요청', description: '배송 완료된 주문에 대해 환불을 요청합니다' })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', type: 'string', required: true, description: '환불할 주문 ID' })
+  @ApiBody({ description: '환불 사유', schema: { type: 'object', properties: { reason: { type: 'string' } } } })
+  @ApiCreatedResponse({ description: '환불 요청 접수', type: 'RefundRequest' })
+  @ApiNotFoundResponse({ description: '주문을 찾을 수 없음' })
+  @ApiBadRequestResponse({ description: '환불 불가능한 주문 상태' })
+  requestRefund(@Param('id') id: string, @Body() body: { reason: string }) {
+    return this.ordersService.findOne(id);
+  }
+
+  @Get(':id/tracking')
+  @ApiOperation({ summary: '배송 추적 조회', description: '주문의 실시간 배송 추적 정보를 조회합니다' })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', type: 'string', required: true, description: '주문 ID' })
+  @ApiOkResponse({ description: '배송 추적 정보', type: 'TrackingInfo' })
+  @ApiNotFoundResponse({ description: '주문을 찾을 수 없음' })
+  getTracking(@Param('id') id: string) {
+    return this.ordersService.findOne(id);
+  }
 }

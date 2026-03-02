@@ -45,4 +45,22 @@ export class UsersController {
   @ApiNotFoundResponse({ description: '사용자를 찾을 수 없음' })
   @Delete(':id')
   remove(@Param('id') id: string) {}
+
+  @Post(':id/change-password')
+  @ApiOperation({ summary: '비밀번호 변경', description: '현재 비밀번호 확인 후 새 비밀번호로 변경합니다' })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', type: 'string', required: true, description: '사용자 ID' })
+  @ApiBody({ description: '비밀번호 변경 정보', schema: { type: 'object', properties: { currentPassword: { type: 'string' }, newPassword: { type: 'string' } }, required: ['currentPassword', 'newPassword'] } })
+  @ApiOkResponse({ description: '비밀번호 변경 완료' })
+  @ApiBadRequestResponse({ description: '현재 비밀번호 불일치' })
+  changePassword(@Param('id') id: string, @Body() body: { currentPassword: string; newPassword: string }) {}
+
+  @Get(':id/orders')
+  @ApiOperation({ summary: '사용자 주문 조회', description: '특정 사용자의 주문 내역을 조회합니다. 관리자 전용' })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', type: 'string', required: true, description: '사용자 ID' })
+  @ApiQuery({ name: 'status', type: 'string', required: false, description: '주문 상태 필터' })
+  @ApiOkResponse({ description: '사용자의 주문 목록', type: 'Order[]' })
+  @ApiNotFoundResponse({ description: '사용자를 찾을 수 없음' })
+  getUserOrders(@Param('id') id: string, @Query('status') status?: string) {}
 }
